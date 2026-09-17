@@ -1,4 +1,4 @@
-name: Android TV Build
+name: Build Android TV AAB
 
 on:
   push:
@@ -18,13 +18,25 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Validate TV Manifest and Source
+    - name: Setup Android Project Structure
       run: |
-        echo "Checking Android TV files..."
-        ls -la
-        if [ -f "AndroidManifest.xml" ] && [ -f "MainActivity.java" ]; then
-          echo "Success: TV WebView source files are present!"
-        else
-          echo "Error: Missing core files."
-          exit 1
-        fi
+        mkdir -p app/src/main/java/hu/mflix.hu
+        mkdir -p app/src/main/res/mipmap
+        
+        mv AndroidManifest.xml app/src/main/
+        mv MainActivity.java app/src/main/java/hu/mflix.hu/
+        mv build.gradle app/
+        
+        echo "allprojects { repositories { google() mavenCentral() } }" > build.gradle
+        echo "Project structure ready!"
+
+    - name: Build with Gradle
+      run: |
+        gradle wrapper
+        ./gradlew bundleRelease
+
+    - name: Upload AAB Package
+      uses: actions/upload-artifact@v4
+      with:
+        name: mflix-tv-release
+        path: app/build/outputs/bundle/release/app-release.aab
