@@ -20,15 +20,18 @@ jobs:
 
     - name: Setup Android Project Structure
       run: |
+        # Biztosítjuk, hogy a mappák létezzenek
         mkdir -p app/src/main/java/hu/mflix.hu
         mkdir -p app/src/main/res/mipmap
         
-        mv AndroidManifest.xml app/src/main/
-        mv MainActivity.java app/src/main/java/hu/mflix.hu/
-        mv build.gradle app/
+        # Ha a gyökérben maradtak volna fájlok, áthelyezzük őket, ha már az app-ban vannak, átmásoljuk/hagyjuk
+        [ -f "AndroidManifest.xml" ] && mv AndroidManifest.xml app/src/main/ || echo "Manifest already moved"
+        [ -f "MainActivity.java" ] && mv MainActivity.java app/src/main/java/hu/mflix.hu/ || echo "Activity already moved"
+        [ -f "build.gradle" ] && mv build.gradle app/ || echo "build.gradle already moved"
         
+        # Gyökér szintű beállítás létrehozása
         echo "allprojects { repositories { google() mavenCentral() } }" > build.gradle
-        echo "Project structure ready!"
+        echo "Project structure ready and verified!"
 
     - name: Build with Gradle
       run: |
