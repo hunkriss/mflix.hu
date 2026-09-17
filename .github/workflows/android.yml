@@ -1,0 +1,30 @@
+name: Android TV Build
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Validate TV Manifest and Source
+      run: |
+        echo "Checking Android TV files..."
+        ls -la
+        if [ -f "AndroidManifest.xml" ] && [ -f "MainActivity.java" ]; then
+          echo "Success: TV WebView source files are present!"
+        else
+          echo "Error: Missing core files."
+          exit 1
+        fi
